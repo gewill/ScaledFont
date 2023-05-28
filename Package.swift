@@ -6,19 +6,21 @@ import PackageDescription
 let package = Package(
     name: "ScaledFont",
     platforms: [
-        .iOS(.v11), .tvOS(.v11), .watchOS(.v4)
+        .macOS(.v11),
     ],
     products: [
         .library(
             name: "ScaledFont",
-            targets: ["ScaledFont"]),
+            targets: ["ScaledFont"]
+        ),
     ],
     targets: [
         .target(name: "ScaledFont"),
         .testTarget(
             name: "ScaledFontTests",
             dependencies: ["ScaledFont"],
-            resources: [.process("TestData")]),
+            resources: [.process("TestData")]
+        ),
     ]
 )
 

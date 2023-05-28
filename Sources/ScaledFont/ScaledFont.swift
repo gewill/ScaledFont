@@ -26,7 +26,7 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
-import UIKit
+import AppKit
 
 /// A utility type to help you use custom fonts with
 /// dynamic type.
@@ -100,7 +100,6 @@ import UIKit
 /// ```
 ///
 
-@available(iOS 11.0, tvOS 11.0, watchOS 4.0, *)
 public struct ScaledFont {
     internal enum StyleKey: String, Decodable {
         case largeTitle, title, title2, title3
@@ -146,30 +145,20 @@ public struct ScaledFont {
     ///   a font for this text style the default preferred
     ///   font is returned.
 
-    public func font(forTextStyle textStyle: UIFont.TextStyle) -> UIFont {
+    public func font(forTextStyle textStyle: NSFont.TextStyle) -> NSFont {
         guard let styleKey = StyleKey(textStyle),
               let fontDescription = styleDictionary?[styleKey.rawValue],
-              let font = UIFont(name: fontDescription.fontName, size: fontDescription.fontSize)
+              let font = NSFont(name: fontDescription.fontName, size: fontDescription.fontSize)
         else {
-            return UIFont.preferredFont(forTextStyle: textStyle)
+            return NSFont.preferredFont(forTextStyle: textStyle)
         }
 
-        let fontMetrics = UIFontMetrics(forTextStyle: textStyle)
-        return fontMetrics.scaledFont(for: font)
+        return font
     }
 }
 
-@available(iOS 11.0, tvOS 11.0, watchOS 4.0, *)
 extension ScaledFont.StyleKey {
-    init?(_ textStyle: UIFont.TextStyle) {
-        #if !os(tvOS)
-        if #available(watchOS 5.0, *) {
-            if textStyle == .largeTitle {
-                self = .largeTitle
-                return
-            }
-        }
-        #endif
+    init?(_ textStyle: NSFont.TextStyle) {
         switch textStyle {
             case .title1: self = .title
             case .title2: self = .title2

@@ -28,7 +28,6 @@
 
 import SwiftUI
 
-@available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension ScaledFont.StyleKey {
     init?(_ textStyle: Font.TextStyle) {
         switch textStyle {
@@ -48,7 +47,6 @@ extension ScaledFont.StyleKey {
     }
 }
 
-@available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 extension ScaledFont {
     /// Get the scaled font for the given text style using the
     /// style dictionary supplied at initialization.
@@ -78,9 +76,9 @@ extension ScaledFont {
         }
     }
 
-    private func uiTextStyle(_ textStyle: Font.TextStyle) -> UIFont.TextStyle {
+    private func uiTextStyle(_ textStyle: Font.TextStyle) -> NSFont.TextStyle {
         switch textStyle {
-        case .largeTitle: return largeTitle()
+        case .largeTitle: return .largeTitle
         case .title: return .title1
         case .title2: return .title2
         case .title3: return .title3
@@ -94,19 +92,8 @@ extension ScaledFont {
         @unknown default: return .body
         }
     }
-
-    // On tvOS fallback to .title1 text style as
-    // UIKit (but not SwiftUI) is missing .largeTitle.
-    private func largeTitle() -> UIFont.TextStyle {
-        #if os(tvOS)
-            return .title1
-        #else
-            return .largeTitle
-        #endif
-    }
 }
 
-@available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 private struct ScaledFontModifier: ViewModifier {
     @Environment(\.scaledFont) var scaledFont
     let textStyle: Font.TextStyle
@@ -117,7 +104,6 @@ private struct ScaledFontModifier: ViewModifier {
     }
 }
 
-@available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension View {
     /// Sets the text style of the scaled font for text
     /// in the view.
@@ -133,7 +119,6 @@ private struct ScaledFontKey: EnvironmentKey {
     static var defaultValue = ScaledFont(fontName: "Default")
 }
 
-@available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension EnvironmentValues {
     /// A custom font that supports dynamic type
     /// text styles.
@@ -143,7 +128,6 @@ public extension EnvironmentValues {
     }
 }
 
-@available(iOS 13.0, tvOS 13.0, watchOS 6.0, *)
 public extension View {
     /// Set the scaledFont environment property
     /// - Parameter scaledFont: A ScaledFont to use
@@ -153,7 +137,6 @@ public extension View {
 }
 
 #if swift(>=5.3)
-    @available(iOS 14.0, tvOS 14.0, watchOS 7.0, *)
     struct ModifierLibrary: LibraryContentProvider {
         @LibraryContentBuilder
         func modifiers(base: Text) -> [LibraryItem] {
