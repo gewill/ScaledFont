@@ -138,17 +138,44 @@ public struct ScaledFont {
     /// The design to use for a system font.
     ///
     /// Only used for a text style that does not have a
-    /// `fontName` in the style dictionary.
-    public enum FontDesign: String {
-        case `default`, serif, monospaced
+    /// `fontName` in the style dictionary. A design that the
+    /// platform does not support is ignored.
+
+    public struct FontDesign: RawRepresentable, Hashable, Sendable {
+        public let rawValue: String
+
+        public init(rawValue: String) {
+            self.rawValue = rawValue
+        }
+
+        /// The default system font design.
+        public static let `default` = FontDesign(rawValue: "default")
+
+        /// The serif system font design.
+        public static let serif = FontDesign(rawValue: "serif")
+
+        /// The monospaced system font design.
+        public static let monospaced = FontDesign(rawValue: "monospaced")
     }
 
     /// The weight to use for the font.
     ///
     /// For a custom font, `bold` uses the matching bold face of
-    /// the same font family when the family has one.
-    public enum FontWeight: String {
-        case regular, bold
+    /// the same font family when the family has one. A weight
+    /// that the platform does not support is ignored.
+
+    public struct FontWeight: RawRepresentable, Hashable, Sendable {
+        public let rawValue: String
+
+        public init(rawValue: String) {
+            self.rawValue = rawValue
+        }
+
+        /// The regular font weight.
+        public static let regular = FontWeight(rawValue: "regular")
+
+        /// The bold font weight.
+        public static let bold = FontWeight(rawValue: "bold")
     }
 
     internal typealias StyleDictionary = [StyleKey.RawValue: FontDescription]
@@ -292,15 +319,16 @@ public struct ScaledFont {
         // not be scaled again with `UIFontMetrics`.
         var descriptor = PlatformFontDescriptor.preferredFontDescriptor(withTextStyle: textStyle)
 
-        if let weight = weight {
+        if let weight = weight, let systemWeight = weight.systemWeight {
             descriptor = descriptor.addingAttributes([
-                .traits: [PlatformFontDescriptor.TraitKey.weight: weight.systemWeight.rawValue]
+                .traits: [PlatformFontDescriptor.TraitKey.weight: systemWeight.rawValue]
             ])
         }
 
         if #available(iOS 13.0, tvOS 13.0, watchOS 7.0, *),
            let design = design,
-           let designedDescriptor = descriptor.withDesign(design.systemDesign) {
+           let systemDesign = design.systemDesign,
+           let designedDescriptor = descriptor.withDesign(systemDesign) {
             descriptor = designedDescriptor
         }
 
@@ -309,12 +337,13 @@ public struct ScaledFont {
         let preferredFont = PlatformFont.preferredFont(forTextStyle: textStyle)
         var font = preferredFont
 
-        if let weight = weight {
-            font = PlatformFont.systemFont(ofSize: preferredFont.pointSize, weight: weight.systemWeight)
+        if let weight = weight, let systemWeight = weight.systemWeight {
+            font = PlatformFont.systemFont(ofSize: preferredFont.pointSize, weight: systemWeight)
         }
 
         if let design = design,
-           let descriptor = font.fontDescriptor.withDesign(design.systemDesign),
+           let systemDesign = design.systemDesign,
+           let descriptor = font.fontDescriptor.withDesign(systemDesign),
            let designedFont = NSFont(descriptor: descriptor, size: font.pointSize) {
             font = designedFont
         }
@@ -394,9 +423,9 @@ extension ScaledFont.FontDescription {
         fontSize = try container.decodeIfPresent(CGFloat.self, forKey: .fontSize)
         fontName = try container.decodeIfPresent(String.self, forKey: .fontName)
         design = try container.decodeIfPresent(String.self, forKey: .design)
-            .flatMap(ScaledFont.FontDesign.init(rawValue:))
+            .map(ScaledFont.FontDesign.init(rawValue:))
         weight = try container.decodeIfPresent(String.self, forKey: .weight)
-            .flatMap(ScaledFont.FontWeight.init(rawValue:))
+            .map(ScaledFont.FontWeight.init(rawValue:))
 
         // A custom font needs both keys. Reject the style dictionary
         // when only one of them is present instead of silently using
@@ -413,20 +442,28 @@ extension ScaledFont.FontDescription {
 
 @available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 7.0, *)
 extension ScaledFont.FontDesign {
-    var systemDesign: PlatformFontDescriptor.SystemDesign {
+    /// The matching system design or `nil` for a design that is
+    /// not supported.
+
+    var systemDesign: PlatformFontDescriptor.SystemDesign? {
         switch self {
             case .default: return .default
             case .serif: return .serif
             case .monospaced: return .monospaced
+            default: return nil
         }
     }
 }
 
 extension ScaledFont.FontWeight {
-    var systemWeight: PlatformFont.Weight {
+    /// The matching system weight or `nil` for a weight that is
+    /// not supported.
+
+    var systemWeight: PlatformFont.Weight? {
         switch self {
             case .regular: return .regular
             case .bold: return .bold
+            default: return nil
         }
     }
 }

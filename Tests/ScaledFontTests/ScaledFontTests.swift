@@ -211,6 +211,17 @@ final class ScaledFontTests: XCTestCase {
         XCTAssertEqual(font.familyName, ".AppleSystemUIFont")
     }
 
+    func testUnknownVariantValuesAreIgnored() {
+        let scaledFont = ScaledFont(fontName: "SystemVariants", bundle: .module)
+        let font = scaledFont.font(
+            forTextStyle: .body,
+            design: ScaledFont.FontDesign(rawValue: "rounded"),
+            weight: ScaledFont.FontWeight(rawValue: "semibold")
+        )
+        XCTAssertEqual(font.familyName, ".AppleSystemUIFont")
+        XCTAssertFalse(font.hasBoldTrait)
+    }
+
     func testExplicitRegularWeightOverridesPlistWeight() {
         let scaledFont = ScaledFont(fontName: "SystemVariants", bundle: .module)
         let font = scaledFont.font(forTextStyle: .headline, weight: .regular)

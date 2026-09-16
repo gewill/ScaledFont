@@ -85,13 +85,13 @@ extension ScaledFont {
             }
 
             var font: Font
-            if let design = effectiveDesign?.fontDesign {
-                font = Font.system(textStyle, design: design)
+            if let design = effectiveDesign, let fontDesign = design.fontDesign {
+                font = Font.system(textStyle, design: fontDesign)
             } else {
                 font = Font.system(textStyle)
             }
-            if let weight = effectiveWeight?.fontWeight {
-                font = font.weight(weight)
+            if let weight = effectiveWeight, let fontWeight = weight.fontWeight {
+                font = font.weight(fontWeight)
             }
             return font
         } else {
@@ -130,21 +130,29 @@ extension ScaledFont {
 
 @available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 7.0, *)
 extension ScaledFont.FontDesign {
-    var fontDesign: Font.Design {
+    /// The matching SwiftUI design or `nil` for a design that is
+    /// not supported.
+
+    var fontDesign: Font.Design? {
         switch self {
         case .default: return .default
         case .serif: return .serif
         case .monospaced: return .monospaced
+        default: return nil
         }
     }
 }
 
 @available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *)
 extension ScaledFont.FontWeight {
-    var fontWeight: Font.Weight {
+    /// The matching SwiftUI weight or `nil` for a weight that is
+    /// not supported.
+
+    var fontWeight: Font.Weight? {
         switch self {
         case .regular: return .regular
         case .bold: return .bold
+        default: return nil
         }
     }
 }
