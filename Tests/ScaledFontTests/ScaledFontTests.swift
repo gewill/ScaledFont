@@ -28,6 +28,13 @@
 
 import ScaledFont
 import XCTest
+#if canImport(UIKit)
+import UIKit
+private typealias TestFont = UIFont
+#elseif canImport(AppKit)
+import AppKit
+private typealias TestFont = NSFont
+#endif
 
 @available(iOS 11.0, tvOS 11.0, watchOS 4.0, *)
 final class ScaledFontTests: XCTestCase {
@@ -122,4 +129,106 @@ final class ScaledFontTests: XCTestCase {
         let font = scaledFont.font(forTextStyle: .body)
         XCTAssertEqual(font.familyName, ".AppleSystemUIFont")
     }
+
+    func testSystemSerifDesign() {
+        let scaledFont = ScaledFont(fontName: "SystemVariants", bundle: .module)
+        let font = scaledFont.font(forTextStyle: .body)
+        XCTAssertEqual(font.familyName, ".AppleSystemUIFontSerif")
+    }
+
+    func testSystemMonospacedBoldDesign() {
+        let scaledFont = ScaledFont(fontName: "SystemVariants", bundle: .module)
+        let font = scaledFont.font(forTextStyle: .headline)
+        XCTAssertEqual(font.familyName, ".AppleSystemUIFontMonospaced")
+        XCTAssertTrue(font.hasBoldTrait)
+    }
+
+    func testUnsupportedSystemVariantsFallbackToSystemFont() {
+        let scaledFont = ScaledFont(fontName: "SystemVariants", bundle: .module)
+        let font = scaledFont.font(forTextStyle: .subheadline)
+        XCTAssertEqual(font.familyName, ".AppleSystemUIFont")
+        XCTAssertFalse(font.hasBoldTrait)
+    }
+
+    func testUnsupportedCustomFontVariantsFallbackToFontName() {
+        let scaledFont = ScaledFont(fontName: "SystemVariants", bundle: .module)
+        let font = scaledFont.font(forTextStyle: .caption1)
+        XCTAssertEqual(font.fontName, defaultFontName)
+    }
+
+    func testExplicitDesignDoesNotOverrideCustomFontName() {
+        let scaledFont = ScaledFont(fontName: testFont, bundle: .module)
+        let font = scaledFont.font(forTextStyle: .subheadline, design: .serif)
+        XCTAssertEqual(font.fontName, italicFontName)
+    }
+
+    func testExplicitWeightUsesCustomBoldFontWhenAvailable() {
+        let scaledFont = ScaledFont(fontName: testFont, bundle: .module)
+        let font = scaledFont.font(forTextStyle: .body, weight: .bold)
+        XCTAssertEqual(font.fontName, boldFontName)
+    }
+
+    func testExplicitWeightOverridesUnsupportedPlistWeight() {
+        let scaledFont = ScaledFont(fontName: "SystemVariants", bundle: .module)
+        let font = scaledFont.font(forTextStyle: .subheadline, weight: .bold)
+        XCTAssertEqual(font.familyName, ".AppleSystemUIFont")
+        XCTAssertTrue(font.hasBoldTrait)
+    }
+
+    func testBoldWeightKeepsFontThatIsAlreadyBold() {
+        let scaledFont = ScaledFont(fontName: testFont, bundle: .module)
+        let font = scaledFont.font(forTextStyle: .headline, weight: .bold)
+        XCTAssertEqual(font.fontName, boldFontName)
+    }
+
+    func testBoldWeightKeepsItalicFontWithoutBoldItalicFace() {
+        let scaledFont = ScaledFont(fontName: testFont, bundle: .module)
+        let font = scaledFont.font(forTextStyle: .subheadline, weight: .bold)
+        XCTAssertEqual(font.fontName, italicFontName)
+    }
+
+    func testSystemFontFallbackUsesPreferredFontSize() {
+        let scaledFont = ScaledFont(fontName: "MissingHeadline", bundle: .module)
+        let font = scaledFont.font(forTextStyle: .headline)
+        XCTAssertEqual(font.pointSize, TestFont.preferredFont(forTextStyle: .headline).pointSize)
+    }
+
+    func testSystemFontVariantsUsePreferredFontSize() {
+        let scaledFont = ScaledFont(fontName: "SystemVariants", bundle: .module)
+        let font = scaledFont.font(forTextStyle: .body)
+        XCTAssertEqual(font.pointSize, TestFont.preferredFont(forTextStyle: .body).pointSize)
+    }
+
+    func testFallbackForEveryStyleWhenDictionaryInvalid() {
+        let scaledFont = ScaledFont(fontName: "InvalidBodyStyle", bundle: .module)
+        let font = scaledFont.font(forTextStyle: .title1)
+        XCTAssertEqual(font.familyName, ".AppleSystemUIFont")
+    }
+
+    func testExplicitDefaultDesignOverridesPlistDesign() {
+        let scaledFont = ScaledFont(fontName: "SystemVariants", bundle: .module)
+        let font = scaledFont.font(forTextStyle: .body, design: .default)
+        XCTAssertEqual(font.familyName, ".AppleSystemUIFont")
+    }
+
+    func testExplicitRegularWeightOverridesPlistWeight() {
+        let scaledFont = ScaledFont(fontName: "SystemVariants", bundle: .module)
+        let font = scaledFont.font(forTextStyle: .headline, weight: .regular)
+        XCTAssertEqual(font.familyName, ".AppleSystemUIFontMonospaced")
+        XCTAssertFalse(font.hasBoldTrait)
+    }
 }
+
+#if canImport(UIKit)
+private extension UIFont {
+    var hasBoldTrait: Bool {
+        return fontDescriptor.symbolicTraits.contains(.traitBold)
+    }
+}
+#elseif canImport(AppKit)
+private extension NSFont {
+    var hasBoldTrait: Bool {
+        return fontDescriptor.symbolicTraits.contains(.bold)
+    }
+}
+#endif
