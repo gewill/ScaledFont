@@ -33,10 +33,10 @@ For example, to use a 17 pt Noteworthy-Bold font for the `.headline` style at th
 </dict>
 ```
 
-For a system font, omit `fontName` and use the optional variant keys:
+For a system font, omit `fontName` and `fontSize` and use the optional variant keys:
 
-+ `design`: `serif` or `monospaced`
-+ `weight`: `bold`
++ `design`: `default`, `serif` or `monospaced`
++ `weight`: `regular` or `bold`
 
 For example, to use a serif system font for the `.subheadline` style:
 
@@ -50,9 +50,9 @@ For example, to use a serif system font for the `.subheadline` style:
 </dict>
 ```
 
-Unsupported variants are ignored. Custom font entries continue using
-`fontName` and `fontSize`; system font entries fallback to the normal
-system font.
+Unsupported variant values are ignored and the normal system font is used. A
+custom font entry needs both `fontName` and `fontSize`; if either one is
+missing the whole style dictionary is ignored.
 
 You can also override the style dictionary at the call site:
 
@@ -63,10 +63,12 @@ Text("Metadata")
 
 Call-site variants take precedence over the style dictionary. Supplying a
 `design` uses the matching system font design for that view when the entry
-does not specify `fontName`. Supplying `weight` applies that weight to the
-system font when the entry does not specify `fontName`. For custom font
-entries, `weight: .bold` uses a matching bold face from the same font family
-when one is available; otherwise it keeps the configured `fontName`.
+does not specify `fontName`; use `design: .default` to go back to the normal
+system font. Supplying `weight` applies that weight to the system font, so
+`weight: .regular` undoes a `bold` from the style dictionary. For custom font
+entries, `weight: .bold` uses the bold face of the same font family when the
+family has one that keeps the other style traits, such as italic or condensed;
+otherwise it keeps the configured `fontName`.
 
 You do not need to include an entry for every text style but if you try to use a text style that is not included in the dictionary it will fallback to the system preferred font.
 

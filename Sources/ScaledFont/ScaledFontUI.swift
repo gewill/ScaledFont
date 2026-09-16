@@ -76,11 +76,12 @@ extension ScaledFont {
 
             if let fontName = fontDescription?.fontName,
                let fontSize = fontDescription?.fontSize {
-                var font = Font.custom(fontName, size: fontSize, relativeTo: textStyle)
-                if let weight = effectiveWeight?.fontWeight {
-                    font = font.weight(weight)
-                }
-                return font
+                // Use the same face as the platform font APIs so that
+                // a custom font keeps its style when made bold.
+                let name = effectiveWeight == .bold
+                    ? boldFontName(for: fontName, size: fontSize)
+                    : fontName
+                return Font.custom(name, size: fontSize, relativeTo: textStyle)
             }
 
             var font: Font
@@ -95,7 +96,7 @@ extension ScaledFont {
             return font
         } else {
             // Falback to UIKit methods for iOS 13
-            return Font(font(forTextStyle: uiTextStyle(textStyle)))
+            return Font(font(forTextStyle: uiTextStyle(textStyle), design: design, weight: weight))
         }
     }
 
@@ -127,10 +128,11 @@ extension ScaledFont {
     }
 }
 
-@available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *)
+@available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 7.0, *)
 extension ScaledFont.FontDesign {
     var fontDesign: Font.Design {
         switch self {
+        case .default: return .default
         case .serif: return .serif
         case .monospaced: return .monospaced
         }
@@ -141,6 +143,7 @@ extension ScaledFont.FontDesign {
 extension ScaledFont.FontWeight {
     var fontWeight: Font.Weight {
         switch self {
+        case .regular: return .regular
         case .bold: return .bold
         }
     }
@@ -164,6 +167,17 @@ public extension View {
     /// Sets the text style of the scaled font for text
     /// in the view.
     /// - Parameter textStyle: A dynamic type text styles
+    /// - Returns: A View that uses the scaled font with the
+    ///   specified dynamic type text style.
+    func scaledFont(_ textStyle: Font.TextStyle) -> some View {
+        return modifier(ScaledFontModifier(textStyle: textStyle, design: nil, weight: nil))
+    }
+
+    /// Sets the text style and the font variants of the scaled
+    /// font for text in the view.
+    /// - Parameter textStyle: A dynamic type text styles
+    /// - Parameter design: The design to use for a system font
+    /// - Parameter weight: The weight to use for the font
     /// - Returns: A View that uses the scaled font with the
     ///   specified dynamic type text style.
     func scaledFont(
