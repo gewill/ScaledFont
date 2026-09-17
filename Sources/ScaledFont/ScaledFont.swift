@@ -98,7 +98,7 @@ typealias PlatformFontDescriptor = NSFontDescriptor
 /// label.adjustsFontForContentSizeCategory = true
 /// ```
 ///
-/// Remember to set the `adjustsFontFotContentSizeCategory` property
+/// Remember to set the `adjustsFontForContentSizeCategory` property
 /// to have the font size adjust automatically when the user changes
 /// their preferred content size.
 ///
@@ -140,10 +140,18 @@ public struct ScaledFont {
     /// Only used for a text style that does not have a
     /// `fontName` in the style dictionary. A design that the
     /// platform does not support is ignored.
+    ///
+    /// New designs may be added in a later version, so include
+    /// a `default` case when you switch over a design.
 
     public struct FontDesign: RawRepresentable, Hashable, Sendable {
+        /// The name of the design in the style dictionary.
         public let rawValue: String
 
+        /// Creates a design from its name in the style dictionary.
+        ///
+        /// - Parameter rawValue: The name of the design, such as
+        ///   `serif`.
         public init(rawValue: String) {
             self.rawValue = rawValue
         }
@@ -163,10 +171,18 @@ public struct ScaledFont {
     /// For a custom font, `bold` uses the matching bold face of
     /// the same font family when the family has one. A weight
     /// that the platform does not support is ignored.
+    ///
+    /// New weights may be added in a later version, so include
+    /// a `default` case when you switch over a weight.
 
     public struct FontWeight: RawRepresentable, Hashable, Sendable {
+        /// The name of the weight in the style dictionary.
         public let rawValue: String
 
+        /// Creates a weight from its name in the style dictionary.
+        ///
+        /// - Parameter rawValue: The name of the weight, such as
+        ///   `bold`.
         public init(rawValue: String) {
             self.rawValue = rawValue
         }

@@ -1,20 +1,35 @@
 # ``ScaledFont``
 
-A utility type to help you use custom fonts with dynamic type.
+Use custom fonts that scale with Dynamic Type in UIKit, AppKit and SwiftUI.
 
 ## Overview
 
-Dynamic type is an **essential iOS feature** that allows the user to choose their preferred text size. Fully supporting dynamic type with a custom font requires two things:
+Dynamic Type lets people choose the text size they prefer. Fully supporting it with a custom font takes two steps:
 
-1. Define a base font with a suitable font weight and size for each of the possible text styles at the Large (Default) content size.
-2. Scale the base font across the range of dynamic type content sizes.
+1. Choose a base font, with a suitable weight and size, for each text style at the default Large content size.
+2. Scale each base font across the range of Dynamic Type content sizes.
 
-The problem, if you do this for every text style you use, is that you end up with those font metrics spread all over your app. That's both difficult to maintain and hard to keep consistent when you want to make design changes.
+Doing both for every text style spreads font metrics throughout an app, which makes them hard to maintain and hard to keep consistent when the design changes. `ScaledFont` collects the base font for each text style into a **style dictionary**, a property list file that you add to your app, and gives you the scaled font for a text style wherever you need it.
 
-To make it easier to manage the base font metrics for all of the possible text styles the `ScaledFont` type collects them into a **style dictionary**. You store the style dictionary as a property list file that, by default, you include in the main bundle.
+A style dictionary entry can also describe a system font instead of a custom font, with a serif or monospaced design or a bold weight, and you can override those variants where you use the font.
+
+ScaledFont works on iOS, iPadOS, tvOS, watchOS, visionOS and macOS. macOS does not have Dynamic Type, so a custom font there keeps the size from the style dictionary.
 
 ## Topics
 
-### Getting Started
+### Essentials
 
 - <doc:StyleDictionary>
+- <doc:UsingAScaledFont>
+- ``ScaledFont/ScaledFont``
+
+### Font Variants
+
+- <doc:FontVariants>
+
+### SwiftUI
+
+- ``SwiftUICore/View/scaledFont(_:)-(ScaledFont)``
+- ``SwiftUICore/View/scaledFont(_:)-(Font.TextStyle)``
+- ``SwiftUICore/View/scaledFont(_:design:weight:)``
+- ``SwiftUICore/EnvironmentValues/scaledFont``
