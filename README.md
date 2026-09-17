@@ -10,7 +10,7 @@ Dynamic type is an **essential iOS feature** that allows the user to choose thei
 1. Define a base font with a suitable font weight and size for each of the possible text styles at the Large (Default) content size.
 2. Scale the base font across the range of dynamic type content sizes.
 
-For the first step, you might want to start with the typography section of the [Apple Human Interface Guidelines for iOS](https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/typography/) which list the font metrics Apple uses for the default San Francisco font.
+For the first step, you might want to start with the specifications in the typography section of the [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/typography#Specifications), which list the sizes Apple uses for the system font on each platform.
 
 For example, here I'm creating a bold Noteworthy font at 17 points as the base headline font and a light version of the font for the base body font:
 
@@ -141,7 +141,7 @@ When using `UIKit` you apply the scaled font to the text label, text field or te
     label.font = scaledFont.font(forTextStyle: .headline)
     ```
 
-3. Remember to set the `adjustsFontFotContentSizeCategory` property to have the font size adjust automatically when the user changes their preferred content size:
+3. Remember to set the `adjustsFontForContentSizeCategory` property to have the font size adjust automatically when the user changes their preferred content size:
 
     ```swift
     label.adjustsFontForContentSizeCategory = true

@@ -17,7 +17,7 @@ For a custom font, the value of each entry is a dictionary with two keys:
 + `fontName`: A `String` which is the font name.
 + `fontSize`: A number which is the point size to use at the `.large` (base) content size.
 
-If you're not sure which font sizes to use for each style refer to the typography section of the [Apple Human Interface Guidelines for iOS](https://developer.apple.com/design/human-interface-guidelines/ios/visual-design/typography/). It lists the font metrics Apple uses for the default San Francisco font.
+If you're not sure which font sizes to use for each style, refer to the specifications in the typography section of the [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines/typography#Specifications). They list the sizes Apple uses for the system font on each platform.
 
 For example, to use a 17 pt Noteworthy-Bold font for the `.headline` style at the `.large` content size:
 
@@ -54,21 +54,8 @@ Unsupported variant values are ignored and the normal system font is used. A
 custom font entry needs both `fontName` and `fontSize`; if either one is
 missing the whole style dictionary is ignored.
 
-You can also override the style dictionary at the call site:
-
-```swift
-Text("Metadata")
-  .scaledFont(.subheadline, design: .serif, weight: .bold)
-```
-
-Call-site variants take precedence over the style dictionary. Supplying a
-`design` uses the matching system font design for that view when the entry
-does not specify `fontName`; use `design: .default` to go back to the normal
-system font. Supplying `weight` applies that weight to the system font, so
-`weight: .regular` undoes a `bold` from the style dictionary. For custom font
-entries, `weight: .bold` uses the bold face of the same font family when the
-family has one that keeps the other style traits, such as italic or condensed;
-otherwise it keeps the configured `fontName`.
+You can also override the variants where you use the font, and the `weight`
+key works for custom fonts too. See <doc:FontVariants>.
 
 You do not need to include an entry for every text style but if you try to use a text style that is not included in the dictionary it will fallback to the system preferred font.
 
@@ -85,13 +72,24 @@ families.sorted().forEach {
 }
 ```
 
-**Note that the system installed fonts are not the same for iOS, tvOS and watchOS platforms.**
+On macOS, list the font families and their fonts with `NSFontManager`:
 
-## Example Style Dictionaries
+```swift
+let manager = NSFontManager.shared
+manager.availableFontFamilies.sorted().forEach { family in
+  print(family)
+  let names = manager.availableMembers(ofFontFamily: family)?.compactMap { $0.first as? String } ?? []
+  print(names)
+}
+```
 
-See the `Examples` folder included in this package for some examples. The `Futura` font is available on iOS, tvOS and watchOS.
+**The fonts installed with the system are not the same on every platform.**
 
-The `Noteworthy` style dictionary uses a built-in iOS font.
+### Example Style Dictionaries
+
+See the `Examples` folder included in this package for some examples. The `Futura` font is available on iOS, tvOS, watchOS and macOS.
+
+The `Noteworthy` style dictionary uses a font built into iOS and macOS.
 
 ![Noteworthy font](noteworthy)
 
