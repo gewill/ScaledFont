@@ -118,9 +118,14 @@ families.sorted().forEach {
 
 ## Example Style Dictionaries
 
-See the `Examples` folder included in this package for some examples. The `Noteworthy` style dictionary uses a built-in iOS font.
+See the `Examples` folder included in this package for some examples:
 
-To use the `NotoSerif` example you'll need to download the font files from [Google fonts](https://fonts.google.com/specimen/Noto+Serif), add them to your application target, and list them under "Fonts provided by application" in the `Info.plist` file of the target.
++ `Futura` uses a font that is built into iOS, tvOS, watchOS and macOS.
++ `Noteworthy` uses a font that is built into iOS and macOS.
++ `NotoSerif` needs the font files from [Google fonts](https://fonts.google.com/specimen/Noto+Serif). Add them to your application target, and list them under "Fonts provided by application" in the `Info.plist` file of the target.
++ `SystemFonts` uses no custom font. It sets the serif and monospaced designs and a bold weight for the system font.
+
+The folder also contains `TextSizeDemo`, a macOS app that shows the in-app text size. See [In-App Text Size on macOS](#in-app-text-size-on-macos).
 
 **Check the license for any fonts you plan on shipping with your application.**
 
@@ -146,6 +151,25 @@ When using `UIKit` you apply the scaled font to the text label, text field or te
     ```swift
     label.adjustsFontForContentSizeCategory = true
     ```
+
+## Using A ScaledFont - AppKit
+
+When using `AppKit` you apply the scaled font to the text field or text view in code. You need a minimum deployment target of macOS 11 or later.
+
+1. Create the `ScaledFont` by specifying the name of the style dictionary. Add the style dictionary to the main bundle along with any custom fonts you are using:
+
+    ```swift
+    let scaledFont = ScaledFont(fontName: "Noteworthy")
+    ```
+
+2. Use the `font(forTextStyle:)` method of the scaled font when setting the font of any text fields or views:
+
+    ```swift
+    let textField = NSTextField(labelWithString: "Headline")
+    textField.font = scaledFont.font(forTextStyle: .headline)
+    ```
+
+macOS does not have Dynamic Type, so a custom font keeps the size from the style dictionary, and a text style without an entry uses the macOS system font for that style. To let people change the text size in your app, see [In-App Text Size on macOS](#in-app-text-size-on-macos).
 
 ## Using A ScaledFont - SwiftUI
 
@@ -188,6 +212,70 @@ struct ContentView: View {
     }
   }
 }
+```
+
+## In-App Text Size on macOS
+
+macOS does not share the text size people choose in System Settings with other apps, and SwiftUI ignores the Dynamic Type size for fonts on the Mac. To let people make the text in your app larger, offer your own text size setting. ScaledFont scales the fonts it manages to that size, with the same steps and the same text style hierarchy as Dynamic Type on iOS. You need macOS 12 or later.
+
+`TextSizePreference` stores the size in the user defaults of your app, keeps it within a range, which includes every accessibility size by default, and tells your app when it changes.
+
+With SwiftUI, set the size on your view hierarchy with the `dynamicTypeSize(_:)` modifier. The `scaledFont(_:)` modifiers read it and scale their fonts:
+
+```swift
+@main
+struct ReaderApp: App {
+  @StateObject private var textSize = TextSizePreference()
+  private let scaledFont = ScaledFont(fontName: "Noteworthy")
+
+  var body: some Scene {
+    WindowGroup {
+      ContentView()
+        .scaledFont(scaledFont)
+        .dynamicTypeSize(textSize.dynamicTypeSize)
+    }
+    .commands {
+      CommandGroup(after: .toolbar) {
+        Button("Make Text Bigger") { textSize.increase() }
+          .keyboardShortcut("+")
+        Button("Make Text Smaller") { textSize.decrease() }
+          .keyboardShortcut("-")
+        Button("Make Text Normal Size") { textSize.reset() }
+          .keyboardShortcut("0")
+      }
+    }
+  }
+}
+```
+
+With AppKit, pass the size when you get a font, and set the fonts again when the preference changes, because AppKit does not adjust fonts by itself:
+
+```swift
+func applyFonts() {
+  label.font = scaledFont.font(forTextStyle: .body, dynamicTypeSize: textSize.dynamicTypeSize)
+}
+
+func observeTextSize() {
+  NotificationCenter.default.addObserver(
+    self,
+    selector: #selector(textSizeDidChange(_:)),
+    name: TextSizePreference.didChangeNotification,
+    object: textSize
+  )
+}
+
+@objc func textSizeDidChange(_ notification: Notification) {
+  applyFonts()
+}
+```
+
+A custom font scales by the factor `UIFontMetrics` applies to it on iOS, and a system font by the ratio of the iOS preferred font sizes, both rounded to whole points as on iOS. At the default Large size the fonts are exactly the ones you get without a size.
+
+To try it, run the demo app in the `Examples` folder:
+
+```sh
+cd Examples
+swift run TextSizeDemo
 ```
 
 ## Further Reading

@@ -59,18 +59,25 @@ func applyFonts() {
     label.font = scaledFont.font(forTextStyle: .body, dynamicTypeSize: textSize.dynamicTypeSize)
 }
 
-observer = NotificationCenter.default.addObserver(
-    forName: TextSizePreference.didChangeNotification,
-    object: textSize,
-    queue: .main
-) { [weak self] _ in
-    MainActor.assumeIsolated {
-        self?.applyFonts()
-    }
+func observeTextSize() {
+    NotificationCenter.default.addObserver(
+        self,
+        selector: #selector(textSizeDidChange(_:)),
+        name: TextSizePreference.didChangeNotification,
+        object: textSize
+    )
+}
+
+@objc func textSizeDidChange(_ notification: Notification) {
+    applyFonts()
 }
 ```
 
 Set the fonts of attributed text, such as the contents of an `NSTextView`, again as well.
+
+### Try the Demo App
+
+The `Examples` folder of the package contains `TextSizeDemo`, a macOS app that changes the text size from the View menu, from buttons in the window and from a slider in Settings, for text in SwiftUI and in AppKit. Run `swift run TextSizeDemo` in that folder.
 
 ### How Fonts Scale
 

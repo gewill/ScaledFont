@@ -15,6 +15,9 @@ This fork continues from upstream 1.0.5. It does not include the changes in upst
   - On macOS 12 and later, the `scaledFont(_:)` modifiers scale their fonts for the `dynamicTypeSize` of the environment.
   - `TextSizePreference` stores the size in the user defaults of the app, keeps it within a range that includes every accessibility size by default, and posts a notification when it changes.
 - `font(forTextStyle:design:weight:dynamicTypeSize:)` on iOS, iPadOS, tvOS and visionOS, where the explicit size replaces the size chosen in the system settings for that font.
+- `TextSizeDemo` in the `Examples` folder, a macOS app that shows the in-app text size with SwiftUI and AppKit. Run it with `swift run TextSizeDemo` in that folder.
+- `Examples/SystemFonts.plist`, a style dictionary that uses the system font with the serif and monospaced designs and a bold weight.
+- README sections on using ScaledFont with AppKit and on the in-app text size.
 
 ## [1.1.1] - 2026-09-17
 

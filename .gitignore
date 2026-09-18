@@ -4,3 +4,6 @@
 /*.xcodeproj
 xcuserdata/
 /.swiftpm
+/Examples/.build
+/Examples/.swiftpm
+/Examples/Package.resolved

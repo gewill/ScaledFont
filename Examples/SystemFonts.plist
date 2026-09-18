@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>body</key>
+	<dict>
+		<key>design</key>
+		<string>serif</string>
+	</dict>
+	<key>callout</key>
+	<dict>
+		<key>design</key>
+		<string>serif</string>
+	</dict>
+	<key>caption</key>
+	<dict>
+		<key>design</key>
+		<string>monospaced</string>
+	</dict>
+	<key>caption2</key>
+	<dict>
+		<key>design</key>
+		<string>monospaced</string>
+	</dict>
+	<key>footnote</key>
+	<dict>
+		<key>design</key>
+		<string>monospaced</string>
+	</dict>
+	<key>headline</key>
+	<dict>
+		<key>design</key>
+		<string>serif</string>
+		<key>weight</key>
+		<string>bold</string>
+	</dict>
+	<key>largeTitle</key>
+	<dict>
+		<key>design</key>
+		<string>serif</string>
+		<key>weight</key>
+		<string>bold</string>
+	</dict>
+	<key>subheadline</key>
+	<dict>
+		<key>design</key>
+		<string>serif</string>
+	</dict>
+	<key>title</key>
+	<dict>
+		<key>design</key>
+		<string>serif</string>
+	</dict>
+	<key>title2</key>
+	<dict>
+		<key>design</key>
+		<string>serif</string>
+	</dict>
+	<key>title3</key>
+	<dict>
+		<key>design</key>
+		<string>serif</string>
+	</dict>
+</dict>
+</plist>
