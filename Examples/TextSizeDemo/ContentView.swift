@@ -13,20 +13,24 @@ struct ContentView: View {
     private let systemFonts = ScaledFont(fontName: "SystemFonts", bundle: .module)
 
     var body: some View {
-        HStack(alignment: .top, spacing: 0) {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 24) {
-                    StyleSamples(title: "SwiftUI · Futura.plist")
-                        .scaledFont(futura)
-                    StyleSamples(title: "SwiftUI · SystemFonts.plist")
-                        .scaledFont(systemFonts)
+        VStack(spacing: 0) {
+            HStack(alignment: .top, spacing: 0) {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        StyleSamples(title: "SwiftUI · Futura.plist")
+                            .scaledFont(futura)
+                        StyleSamples(title: "SwiftUI · SystemFonts.plist")
+                            .scaledFont(systemFonts)
+                    }
+                    .padding()
+                    .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
+                Divider()
+                AppKitSamples(scaledFont: futura)
+                    .frame(width: 340)
             }
             Divider()
-            AppKitSamples(scaledFont: futura)
-                .frame(width: 340)
+            ShortcutHints()
         }
         .frame(minWidth: 800, minHeight: 560)
         .navigationSubtitle("Text size: \(textSize.dynamicTypeSize.displayName)")
@@ -38,21 +42,51 @@ struct ContentView: View {
                     Label("Make Text Smaller", systemImage: "textformat.size.smaller")
                 }
                 .disabled(!textSize.canDecrease)
-                .help("Make Text Smaller")
+                .help("Make Text Smaller (⌘-)")
                 Button {
                     textSize.reset()
                 } label: {
                     Label("Make Text Normal Size", systemImage: "textformat.size")
                 }
-                .help("Make Text Normal Size")
+                .help("Make Text Normal Size (⌘0)")
                 Button {
                     textSize.increase()
                 } label: {
                     Label("Make Text Bigger", systemImage: "textformat.size.larger")
                 }
                 .disabled(!textSize.canIncrease)
-                .help("Make Text Bigger")
+                .help("Make Text Bigger (⌘+)")
             }
+        }
+    }
+}
+
+/// The keyboard shortcuts of the View menu, always in sight.
+///
+/// The system font keeps its size on macOS, so the hints do not
+/// grow with the text size.
+
+struct ShortcutHints: View {
+    var body: some View {
+        HStack(spacing: 20) {
+            hint(keys: "⌘+", action: "Make Text Bigger")
+            hint(keys: "⌘-", action: "Make Text Smaller")
+            hint(keys: "⌘0", action: "Make Text Normal Size")
+            Spacer()
+            hint(keys: "⌘,", action: "Settings")
+        }
+        .font(.callout)
+        .foregroundStyle(.secondary)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
+    }
+
+    private func hint(keys: String, action: String) -> some View {
+        HStack(spacing: 6) {
+            Text(keys)
+                .fontWeight(.semibold)
+                .foregroundStyle(.primary)
+            Text(action)
         }
     }
 }

@@ -5,6 +5,11 @@
 
 **A utility type to help you use custom fonts with dynamic type.**
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="Sources/ScaledFont/ScaledFont.docc/Resources/typical-text-sizes~dark@2x.png">
+  <img alt="Text styles of the Futura style dictionary at the Large, Extra Extra Extra Large and Accessibility 3 sizes." src="Sources/ScaledFont/ScaledFont.docc/Resources/typical-text-sizes@2x.png">
+</picture>
+
 Dynamic type is an **essential iOS feature** that allows the user to choose their preferred text size. Fully supporting dynamic type with a custom font requires two things:
 
 1. Define a base font with a suitable font weight and size for each of the possible text styles at the Large (Default) content size.
@@ -124,6 +129,11 @@ See the `Examples` folder included in this package for some examples:
 + `Noteworthy` uses a font that is built into iOS and macOS.
 + `NotoSerif` needs the font files from [Google fonts](https://fonts.google.com/specimen/Noto+Serif). Add them to your application target, and list them under "Fonts provided by application" in the `Info.plist` file of the target.
 + `SystemFonts` uses no custom font. It sets the serif and monospaced designs and a bold weight for the system font.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="Sources/ScaledFont/ScaledFont.docc/Resources/example-style-dictionaries~dark@2x.png">
+  <img alt="Every text style of the Futura style dictionary on the left and of the SystemFonts style dictionary on the right." src="Sources/ScaledFont/ScaledFont.docc/Resources/example-style-dictionaries@2x.png">
+</picture>
 
 The folder also contains `TextSizeDemo`, a macOS app that shows the in-app text size. See [In-App Text Size on macOS](#in-app-text-size-on-macos).
 
@@ -277,6 +287,13 @@ To try it, run the demo app in the `Examples` folder:
 cd Examples
 swift run TextSizeDemo
 ```
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="Sources/ScaledFont/ScaledFont.docc/Resources/text-size-demo~dark@2x.png">
+  <img alt="The TextSizeDemo window at the Extra Extra Extra Large size, with the size in the window subtitle, the toolbar buttons that change it, and the keyboard shortcuts at the bottom." src="Sources/ScaledFont/ScaledFont.docc/Resources/text-size-demo@2x.png">
+</picture>
+
+The "Offering an In-App Text Size" article in the documentation of the package shows every text style at every size.
 
 ## Further Reading
 

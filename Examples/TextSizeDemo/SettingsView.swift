@@ -19,6 +19,10 @@ struct SettingsView: View {
             Text(textSize.dynamicTypeSize.displayName)
                 .foregroundStyle(.secondary)
             Toggle("Larger accessibility sizes", isOn: includesAccessibilitySizes)
+            Text("In the app window, press ⌘+ to make text bigger, ⌘- to make it smaller and ⌘0 to return to the normal size.")
+                .font(.footnote)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
         }
         .padding(20)
         .frame(width: 440)

@@ -91,6 +91,8 @@ See the `Examples` folder included in this package for some examples. The `Futur
 
 The `SystemFonts` style dictionary uses no custom font. It sets the serif and monospaced designs and a bold weight for the system font.
 
+![Every text style of the Futura style dictionary on the left and of the SystemFonts style dictionary on the right.](example-style-dictionaries)
+
 The `Noteworthy` style dictionary uses a font built into iOS and macOS.
 
 ![Noteworthy font](noteworthy)
