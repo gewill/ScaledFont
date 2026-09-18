@@ -5,7 +5,10 @@
 //
 //     swift run TextSizeDemo
 //
-// The style dictionaries in this folder are the resources of the app.
+// DocImages renders images for the documentation of ScaledFont.
+// Tools/update-doc-images.sh runs it.
+//
+// The style dictionaries in this folder are resources of both.
 
 import PackageDescription
 
@@ -27,11 +30,24 @@ let package = Package(
                 .product(name: "ScaledFont", package: "ScaledFont")
             ],
             path: ".",
-            exclude: ["README.md", "NotoSerif.plist"],
+            exclude: ["README.md", "NotoSerif.plist", "Tools"],
             sources: ["TextSizeDemo"],
             resources: [
                 .process("Futura.plist"),
                 .process("Noteworthy.plist"),
+                .process("SystemFonts.plist")
+            ]
+        ),
+        .executableTarget(
+            name: "DocImages",
+            dependencies: [
+                .product(name: "ScaledFont", package: "ScaledFont")
+            ],
+            path: ".",
+            exclude: ["README.md", "NotoSerif.plist", "Noteworthy.plist", "TextSizeDemo", "Tools/update-doc-images.sh"],
+            sources: ["Tools/DocImages"],
+            resources: [
+                .process("Futura.plist"),
                 .process("SystemFonts.plist")
             ]
         )
