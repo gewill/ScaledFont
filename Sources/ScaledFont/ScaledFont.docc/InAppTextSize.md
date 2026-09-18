@@ -6,6 +6,8 @@ Let people choose a larger or smaller text size in your app on macOS, where ther
 
 macOS does not share the text size people choose in System Settings with other apps, and SwiftUI ignores the Dynamic Type size for fonts on the Mac. To let people make the text in your app larger, offer your own text size setting. ScaledFont scales the fonts it manages to that size, with the same steps and the same text style hierarchy as Dynamic Type on iOS.
 
+![Text styles of the Futura style dictionary at the Large, Extra Extra Extra Large and Accessibility 3 sizes.](typical-text-sizes)
+
 Apple's [Larger Text evaluation criteria](https://developer.apple.com/help/app-store-connect/manage-app-accessibility/larger-text-evaluation-criteria) allow an in-app text size setting in place of the system setting, and ask for text that can grow to at least 200 percent.
 
 ### Store the Size
@@ -59,18 +61,27 @@ func applyFonts() {
     label.font = scaledFont.font(forTextStyle: .body, dynamicTypeSize: textSize.dynamicTypeSize)
 }
 
-observer = NotificationCenter.default.addObserver(
-    forName: TextSizePreference.didChangeNotification,
-    object: textSize,
-    queue: .main
-) { [weak self] _ in
-    MainActor.assumeIsolated {
-        self?.applyFonts()
-    }
+func observeTextSize() {
+    NotificationCenter.default.addObserver(
+        self,
+        selector: #selector(textSizeDidChange(_:)),
+        name: TextSizePreference.didChangeNotification,
+        object: textSize
+    )
+}
+
+@objc func textSizeDidChange(_ notification: Notification) {
+    applyFonts()
 }
 ```
 
 Set the fonts of attributed text, such as the contents of an `NSTextView`, again as well.
+
+### Try the Demo App
+
+The `Examples` folder of the package contains `TextSizeDemo`, a macOS app that changes the text size from the View menu, from the toolbar and from a slider in Settings, for text in SwiftUI and in AppKit. Run `swift run TextSizeDemo` in that folder.
+
+![The TextSizeDemo window at the Extra Extra Extra Large size, with the size in the window subtitle, the toolbar buttons that change it, and the keyboard shortcuts at the bottom.](text-size-demo)
 
 ### How Fonts Scale
 
@@ -81,3 +92,57 @@ Set the fonts of attributed text, such as the contents of an `NSTextView`, again
 Text styles grow by different amounts, as they do on iOS. At the largest accessibility size, body text grows to almost three times its size while large titles grow much less, so the hierarchy tightens.
 
 On iOS, iPadOS, tvOS and visionOS, ``ScaledFont/ScaledFont/font(forTextStyle:design:weight:dynamicTypeSize:)`` takes an explicit size as well. For that font it replaces the size chosen in the system settings.
+
+### Every Size
+
+Each tab shows every text style at one size on macOS, with the Futura style dictionary on the left and the system font on the right. At Large, the fonts are the ones you get without a size.
+
+@TabNavigator {
+    @Tab("xSmall") {
+        ![Every text style at the Extra Small size, with Futura on the left and the system font on the right.](text-size-xsmall)
+    }
+
+    @Tab("Small") {
+        ![Every text style at the Small size, with Futura on the left and the system font on the right.](text-size-small)
+    }
+
+    @Tab("Medium") {
+        ![Every text style at the Medium size, with Futura on the left and the system font on the right.](text-size-medium)
+    }
+
+    @Tab("Large") {
+        ![Every text style at the default Large size, with Futura on the left and the system font on the right.](text-size-large)
+    }
+
+    @Tab("xLarge") {
+        ![Every text style at the Extra Large size, with Futura on the left and the system font on the right.](text-size-xlarge)
+    }
+
+    @Tab("xxLarge") {
+        ![Every text style at the Extra Extra Large size, with Futura on the left and the system font on the right.](text-size-xxlarge)
+    }
+
+    @Tab("xxxLarge") {
+        ![Every text style at the Extra Extra Extra Large size, with Futura on the left and the system font on the right.](text-size-xxxlarge)
+    }
+
+    @Tab("AX1") {
+        ![Every text style at the Accessibility 1 size, with Futura on the left and the system font on the right.](text-size-accessibility1)
+    }
+
+    @Tab("AX2") {
+        ![Every text style at the Accessibility 2 size, with Futura on the left and the system font on the right.](text-size-accessibility2)
+    }
+
+    @Tab("AX3") {
+        ![Every text style at the Accessibility 3 size, with Futura on the left and the system font on the right.](text-size-accessibility3)
+    }
+
+    @Tab("AX4") {
+        ![Every text style at the Accessibility 4 size, with Futura on the left and the system font on the right.](text-size-accessibility4)
+    }
+
+    @Tab("AX5") {
+        ![Every text style at the Accessibility 5 size, with Futura on the left and the system font on the right.](text-size-accessibility5)
+    }
+}
