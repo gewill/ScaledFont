@@ -35,7 +35,7 @@ let textField = NSTextField(labelWithString: "Headline")
 textField.font = scaledFont.font(forTextStyle: .headline)
 ```
 
-macOS does not have Dynamic Type, so a custom font keeps the size from the style dictionary, and a text style without an entry uses the macOS system font for that style. The AppKit API needs macOS 11 or later.
+macOS does not have Dynamic Type, so a custom font keeps the size from the style dictionary, and a text style without an entry uses the macOS system font for that style. The AppKit API needs macOS 11 or later. To let people choose a text size in your app, see <doc:InAppTextSize>.
 
 ### Use a Scaled Font With SwiftUI
 
@@ -53,7 +53,7 @@ Text("Headline")
     .scaledFont(.headline)
 ```
 
-On platforms with Dynamic Type, SwiftUI scales the font as the text size changes. The SwiftUI API needs iOS 13, tvOS 13, watchOS 6 or macOS 11 or later.
+On platforms with Dynamic Type, SwiftUI scales the font as the text size changes. On macOS 12 and later the font follows the `dynamicTypeSize` of the environment instead, which your app sets; see <doc:InAppTextSize>. The SwiftUI API needs iOS 13, tvOS 13, watchOS 6 or macOS 11 or later.
 
 > Note: Depending on the OS version, a view presented in a sheet may not inherit the environment of the presenting view. Passing the scaled font on explicitly works everywhere:
 

@@ -35,6 +35,7 @@ import AppKit
 typealias PlatformFont = NSFont
 typealias PlatformFontDescriptor = NSFontDescriptor
 #endif
+import SwiftUI
 
 /// A utility type to help you use custom fonts with
 /// dynamic type.
@@ -255,6 +256,38 @@ public struct ScaledFont {
     ) -> UIFont {
         font(forPlatformTextStyle: textStyle, design: design, weight: weight)
     }
+
+    #if !os(watchOS)
+    /// Get the scaled font for the given text style at an explicit
+    /// Dynamic Type size instead of the size chosen in the system
+    /// settings.
+    ///
+    /// - Parameter textStyle: The `UIFont.TextStyle` for the
+    ///   font.
+    /// - Parameter design: The design to use for a system font.
+    ///   Pass `nil` to use the design of the style dictionary.
+    /// - Parameter weight: The weight to use for the font. Pass
+    ///   `nil` to use the weight of the style dictionary.
+    /// - Parameter dynamicTypeSize: The Dynamic Type size to scale
+    ///   the font for.
+    /// - Returns: A `UIFont` scaled for the given Dynamic Type
+    ///   size, whatever size is chosen in the system settings.
+    ///
+    /// - Note: A custom font is scaled with `UIFontMetrics` from
+    ///   the size in the style dictionary, and a system font is
+    ///   the preferred font for the size. A size this version
+    ///   does not know uses the size chosen in the system settings.
+
+    @available(iOS 15.0, tvOS 15.0, *)
+    public func font(
+        forTextStyle textStyle: UIFont.TextStyle,
+        design: FontDesign? = nil,
+        weight: FontWeight? = nil,
+        dynamicTypeSize: DynamicTypeSize
+    ) -> UIFont {
+        font(forPlatformTextStyle: textStyle, design: design, weight: weight, step: dynamicTypeSize.scalingStep)
+    }
+    #endif
     #elseif canImport(AppKit)
     /// Get the scaled font for the given text style using the
     /// style dictionary supplied at initialization.
@@ -294,12 +327,48 @@ public struct ScaledFont {
     ) -> NSFont {
         font(forPlatformTextStyle: textStyle, design: design, weight: weight)
     }
+
+    /// Get the scaled font for the given text style at a Dynamic
+    /// Type size that the app chooses.
+    ///
+    /// macOS has no Dynamic Type, so the font is scaled here: a
+    /// custom font by the factor `UIFontMetrics` applies to it on
+    /// iOS, and a system font by the ratio of the iOS preferred
+    /// font sizes. Sizes are rounded to whole points, as they are
+    /// on iOS, except at `.large`, where the font is exactly the
+    /// one you get without a size.
+    ///
+    /// - Parameter textStyle: The `NSFont.TextStyle` for the
+    ///   font.
+    /// - Parameter design: The design to use for a system font.
+    ///   Pass `nil` to use the design of the style dictionary.
+    /// - Parameter weight: The weight to use for the font. Pass
+    ///   `nil` to use the weight of the style dictionary.
+    /// - Parameter dynamicTypeSize: The Dynamic Type size to scale
+    ///   the font for.
+    /// - Returns: An `NSFont` scaled for the given Dynamic Type
+    ///   size.
+
+    @available(macOS 12.0, *)
+    public func font(
+        forTextStyle textStyle: NSFont.TextStyle,
+        design: FontDesign? = nil,
+        weight: FontWeight? = nil,
+        dynamicTypeSize: DynamicTypeSize
+    ) -> NSFont {
+        font(forPlatformTextStyle: textStyle, design: design, weight: weight, step: dynamicTypeSize.scalingStep)
+    }
     #endif
+
+    /// - Parameter step: The index of an explicit Dynamic Type size
+    ///   in the scaling tables, or `nil` for the size chosen in the
+    ///   system settings.
 
     private func font(
         forPlatformTextStyle textStyle: PlatformFont.TextStyle,
         design: FontDesign?,
-        weight: FontWeight?
+        weight: FontWeight?,
+        step: Int? = nil
     ) -> PlatformFont {
         let styleKey = StyleKey(textStyle)
         let fontDescription = styleKey.flatMap { styleDictionary?[$0.rawValue] }
@@ -315,25 +384,48 @@ public struct ScaledFont {
 
             #if canImport(UIKit)
             let fontMetrics = UIFontMetrics(forTextStyle: textStyle)
+            #if !os(watchOS)
+            if let step = step {
+                return fontMetrics.scaledFont(for: font, compatibleWith: TextSizeScaling.traitCollection(forStep: step))
+            }
+            #endif
             return fontMetrics.scaledFont(for: font)
             #elseif canImport(AppKit)
-            return font
+            // macOS has no Dynamic Type, so scale the font by the
+            // factor `UIFontMetrics` applies to it on iOS and round
+            // to whole points, as `UIFontMetrics` does.
+            guard let step = step, step != TextSizeScaling.largeStep, let styleKey = styleKey else {
+                return font
+            }
+
+            let size = (font.pointSize * TextSizeScaling.customFontScale(for: styleKey, step: step)).rounded()
+            return PlatformFont(descriptor: font.fontDescriptor.withSize(size), size: size) ?? font
             #endif
         }
 
-        return systemFont(forTextStyle: textStyle, design: effectiveDesign, weight: effectiveWeight)
+        return systemFont(forTextStyle: textStyle, design: effectiveDesign, weight: effectiveWeight, step: step)
     }
 
     private func systemFont(
         forTextStyle textStyle: PlatformFont.TextStyle,
         design: FontDesign?,
-        weight: FontWeight?
+        weight: FontWeight?,
+        step: Int?
     ) -> PlatformFont {
         #if canImport(UIKit)
         // The preferred font descriptor is already scaled for the
-        // users selected text size so the font built from it must
-        // not be scaled again with `UIFontMetrics`.
+        // users selected text size, or for the explicit size, so
+        // the font built from it must not be scaled again with
+        // `UIFontMetrics`.
         var descriptor = PlatformFontDescriptor.preferredFontDescriptor(withTextStyle: textStyle)
+        #if !os(watchOS)
+        if let step = step {
+            descriptor = PlatformFontDescriptor.preferredFontDescriptor(
+                withTextStyle: textStyle,
+                compatibleWith: TextSizeScaling.traitCollection(forStep: step)
+            )
+        }
+        #endif
 
         if let weight = weight, let systemWeight = weight.systemWeight {
             descriptor = descriptor.addingAttributes([
@@ -352,9 +444,19 @@ public struct ScaledFont {
         #elseif canImport(AppKit)
         let preferredFont = PlatformFont.preferredFont(forTextStyle: textStyle)
         var font = preferredFont
+        var size = preferredFont.pointSize
+
+        // macOS has no Dynamic Type, so scale the size of the text
+        // style by the ratio of the iOS preferred font sizes and
+        // round to whole points, as the preferred fonts are.
+        if let step = step, step != TextSizeScaling.largeStep, let styleKey = StyleKey(textStyle) {
+            size = (size * TextSizeScaling.systemFontScale(for: styleKey, step: step)).rounded()
+            let descriptor = PlatformFontDescriptor.preferredFontDescriptor(forTextStyle: textStyle, options: [:])
+            font = PlatformFont(descriptor: descriptor.withSize(size), size: size) ?? preferredFont
+        }
 
         if let weight = weight, let systemWeight = weight.systemWeight {
-            font = PlatformFont.systemFont(ofSize: preferredFont.pointSize, weight: systemWeight)
+            font = PlatformFont.systemFont(ofSize: size, weight: systemWeight)
         }
 
         if let design = design,

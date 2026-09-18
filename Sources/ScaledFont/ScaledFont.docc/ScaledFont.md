@@ -13,7 +13,7 @@ Doing both for every text style spreads font metrics throughout an app, which ma
 
 A style dictionary entry can also describe a system font instead of a custom font, with a serif or monospaced design or a bold weight, and you can override those variants where you use the font.
 
-ScaledFont works on iOS, iPadOS, tvOS, watchOS, visionOS and macOS. macOS does not have Dynamic Type, so a custom font there keeps the size from the style dictionary.
+ScaledFont works on iOS, iPadOS, tvOS, watchOS, visionOS and macOS. macOS does not have Dynamic Type, so by default a custom font there keeps the size from the style dictionary. To let people change the text size in your Mac app, see <doc:InAppTextSize>.
 
 ## Topics
 
@@ -26,6 +26,11 @@ ScaledFont works on iOS, iPadOS, tvOS, watchOS, visionOS and macOS. macOS does n
 ### Font Variants
 
 - <doc:FontVariants>
+
+### Text Size
+
+- <doc:InAppTextSize>
+- ``TextSizePreference``
 
 ### SwiftUI
 
