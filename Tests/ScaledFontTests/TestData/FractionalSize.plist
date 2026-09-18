@@ -9,5 +9,33 @@
 		<key>fontSize</key>
 		<real>17.2</real>
 	</dict>
+	<key>caption2</key>
+	<dict>
+		<key>fontName</key>
+		<string>Futura-Medium</string>
+		<key>fontSize</key>
+		<real>17.8</real>
+	</dict>
+	<key>footnote</key>
+	<dict>
+		<key>fontName</key>
+		<string>Futura-Medium</string>
+		<key>fontSize</key>
+		<real>12.99</real>
+	</dict>
+	<key>largeTitle</key>
+	<dict>
+		<key>fontName</key>
+		<string>Futura-Medium</string>
+		<key>fontSize</key>
+		<real>15.9</real>
+	</dict>
+	<key>title</key>
+	<dict>
+		<key>fontName</key>
+		<string>Futura-Medium</string>
+		<key>fontSize</key>
+		<real>8.02</real>
+	</dict>
 </dict>
 </plist>

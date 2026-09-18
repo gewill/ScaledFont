@@ -341,7 +341,7 @@ func observeTextSize() {
 }
 ```
 
-A custom font scales by the factor `UIFontMetrics` applies to it on iOS, and a system font by the ratio of the iOS preferred font sizes, both rounded to whole points as on iOS. At the default Large size the fonts are exactly the ones you get without a size.
+A custom font scales by the factor `UIFontMetrics` applies to it on iOS, and a system font by the ratio of the iOS preferred font sizes, both rounded to whole points as on iOS. At the default Large size the fonts are exactly the ones you get without a size, and a rounded size never passes the size at Large, so a larger size never gets a smaller font, even with a fractional size in the style dictionary.
 
 To try it, run the demo app in the `Examples` folder:
 

@@ -88,6 +88,7 @@ The `Examples` folder of the package contains `TextSizeDemo`, a macOS app that c
 - A custom font scales from the size in the style dictionary by the factor `UIFontMetrics` applies to it on iOS, and is rounded to whole points the way `UIFontMetrics` rounds, so it has the same size on both platforms.
 - A system font scales from the macOS size of its text style by the ratio of the iOS preferred font sizes, is rounded to whole points, and keeps the weight of the text style.
 - At `.large`, the fonts are exactly the ones you get without a size, including a style dictionary size such as 17.2 points.
+- A rounded size never passes the size at `.large`, so a larger size never gets a smaller font. Where rounding would pass a fractional size, the font keeps the size at `.large` instead: a 17.8 point `caption2` font stays 17.8 points from `.xSmall` to `.large`, where iOS, which rounds every size, gives 18 points.
 
 Text styles grow by different amounts, as they do on iOS. At the largest accessibility size, body text grows to almost three times its size while large titles grow much less, so the hierarchy tightens.
 

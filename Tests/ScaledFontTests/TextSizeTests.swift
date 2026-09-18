@@ -73,6 +73,60 @@ final class TextSizeScalingTests: XCTestCase {
         }
     }
 
+    private let scales: [(kind: String, scale: (ScaledFont.StyleKey, Int) -> CGFloat)] = [
+        ("custom", TextSizeScaling.customFontScale(for:step:)),
+        ("system", TextSizeScaling.systemFontScale(for:step:))
+    ]
+
+    private func scaledSizes(_ size: CGFloat, _ key: ScaledFont.StyleKey, _ scale: (ScaledFont.StyleKey, Int) -> CGFloat) -> [CGFloat] {
+        (0..<12).map { TextSizeScaling.scaledSize(size, by: scale(key, $0), step: $0) }
+    }
+
+    /// A larger size never gets a smaller font for any size at
+    /// Large from 6 to 100 points, in steps of 0.01 point, although
+    /// the size at Large keeps its fraction and the others are
+    /// rounded.
+
+    func testScaledSizesNeverShrinkAsTheSizeGrows() {
+        for key in styleKeys {
+            for (kind, scale) in scales {
+                let shrinking = (600...10_000).map { CGFloat($0) / 100 }.filter { size in
+                    let sizes = scaledSizes(size, key, scale)
+                    return zip(sizes, sizes.dropFirst()).contains { $1 < $0 }
+                }
+                XCTAssertTrue(shrinking.isEmpty, "\(kind) \(key): \(shrinking.prefix(5))")
+            }
+        }
+    }
+
+    /// A whole point size at Large gets the rounded sizes, as on
+    /// iOS.
+
+    func testWholePointSizesAreRounded() {
+        for key in styleKeys {
+            for (kind, scale) in scales {
+                let differing = (6...100).map { CGFloat($0) }.filter { size in
+                    scaledSizes(size, key, scale) != (0..<12).map { (size * scale(key, $0)).rounded() }
+                }
+                XCTAssertTrue(differing.isEmpty, "\(kind) \(key): \(differing.prefix(5))")
+            }
+        }
+    }
+
+    /// A size that rounding would take past the size at Large keeps
+    /// the size at Large instead.
+
+    func testRoundingDoesNotPassAFractionalSizeAtLarge() {
+        let custom = TextSizeScaling.customFontScale(for:step:)
+        // Rounding gives 18 points up to medium, more than 17.8.
+        XCTAssertEqual(scaledSizes(17.8, .caption2, custom), [17.8, 17.8, 17.8, 17.8, 25, 27, 30, 34, 40, 48, 56, 66])
+        // Both sides of a half point.
+        XCTAssertEqual(scaledSizes(11.49, .caption2, custom).prefix(4), [11, 11, 11, 11.49])
+        XCTAssertEqual(scaledSizes(11.5, .caption2, custom).prefix(4), [11.5, 11.5, 11.5, 11.5])
+        // Rounding gives 9 points at xLarge, less than 9.05.
+        XCTAssertEqual(scaledSizes(9.05, .largeTitle, custom)[3...4], [9.05, 9.05])
+    }
+
     #if os(iOS) && !targetEnvironment(macCatalyst)
     private func textStyle(_ key: ScaledFont.StyleKey) -> UIFont.TextStyle {
         switch key {
@@ -382,6 +436,47 @@ final class MacTextSizeTests: XCTestCase {
         let fractional = ScaledFont(fontName: "FractionalSize", bundle: .module)
         XCTAssertEqual(fractional.font(forTextStyle: .body, dynamicTypeSize: .xLarge).pointSize, 19)
         XCTAssertEqual(missingHeadline.font(forTextStyle: .headline, dynamicTypeSize: .xLarge).pointSize, 15)
+    }
+
+    /// Fractional sizes keep their fraction at Large, and a larger
+    /// size still never gets a smaller font. Rounding alone gives
+    /// 16 points at medium for the 15.9 point large title, and 8
+    /// points at xLarge for the 8.02 point title.
+
+    func testFractionalSizesNeverShrinkAsTheSizeGrows() {
+        let fractional = ScaledFont(fontName: "FractionalSize", bundle: .module)
+        for style: NSFont.TextStyle in [.largeTitle, .title1, .body, .footnote, .caption2] {
+            let fonts = DynamicTypeSize.allCases.map { fractional.font(forTextStyle: style, dynamicTypeSize: $0) }
+            XCTAssertEqual(Set(fonts.map(\.fontName)), ["Futura-Medium"], "\(style)")
+
+            let sizes = fonts.map(\.pointSize)
+            for (smaller, larger) in zip(sizes, sizes.dropFirst()) {
+                XCTAssertGreaterThanOrEqual(larger, smaller, "\(style): \(sizes)")
+            }
+            XCTAssertEqual(sizes[3], fractional.font(forTextStyle: style).pointSize, "\(style)")
+        }
+    }
+
+    /// Rounding gives 18 points up to medium for a 17.8 point
+    /// caption2 font, more than its size at Large, so those sizes
+    /// keep 17.8 points.
+
+    func testFractionalCaption2DoesNotShrinkAtLarge() {
+        let fractional = ScaledFont(fontName: "FractionalSize", bundle: .module)
+        let medium = fractional.font(forTextStyle: .caption2, dynamicTypeSize: .medium)
+        let large = fractional.font(forTextStyle: .caption2, dynamicTypeSize: .large)
+        XCTAssertEqual(medium.fontName, "Futura-Medium")
+        XCTAssertEqual(large.fontName, "Futura-Medium")
+        XCTAssertGreaterThanOrEqual(large.pointSize, medium.pointSize)
+
+        XCTAssertEqual(fractional.font(forTextStyle: .caption2, dynamicTypeSize: .xSmall).pointSize, 17.8)
+        XCTAssertEqual(medium.pointSize, 17.8)
+        XCTAssertEqual(large.pointSize, 17.8)
+        XCTAssertEqual(fractional.font(forTextStyle: .caption2, dynamicTypeSize: .xLarge).pointSize, 25)
+
+        let bold = fractional.font(forTextStyle: .caption2, weight: .bold, dynamicTypeSize: .medium)
+        XCTAssertEqual(bold.fontName, "Futura-Bold")
+        XCTAssertEqual(bold.pointSize, 17.8)
     }
 
     func testSystemFontScalesLikeThePreferredFontSizes() {
