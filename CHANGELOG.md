@@ -8,6 +8,14 @@ This fork continues from upstream 1.0.5. It does not include the changes in upst
 
 ## [Unreleased]
 
+### Added
+
+- An in-app text size for macOS, where there is no Dynamic Type. See [#6](https://github.com/gewill/ScaledFont/issues/6).
+  - `font(forTextStyle:design:weight:dynamicTypeSize:)` returns a font scaled for a Dynamic Type size that the app chooses. A custom font scales by the factor `UIFontMetrics` applies on iOS and a system font by the ratio of the iOS preferred font sizes, both rounded to whole points as on iOS, and `.large` returns the same font as before.
+  - On macOS 12 and later, the `scaledFont(_:)` modifiers scale their fonts for the `dynamicTypeSize` of the environment.
+  - `TextSizePreference` stores the size in the user defaults of the app, keeps it within a range that includes every accessibility size by default, and posts a notification when it changes.
+- `font(forTextStyle:design:weight:dynamicTypeSize:)` on iOS, iPadOS, tvOS and visionOS, where the explicit size replaces the size chosen in the system settings for that font.
+
 ## [1.1.1] - 2026-09-17
 
 A documentation release. The API and the behaviour of the library are unchanged.

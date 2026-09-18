@@ -26,6 +26,7 @@
 //  ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 //  POSSIBILITY OF SUCH DAMAGE.
 
+import CoreText
 import SwiftUI
 
 @available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *)
@@ -100,6 +101,34 @@ extension ScaledFont {
         }
     }
 
+    #if os(macOS)
+    /// Get the scaled font for the given text style at a Dynamic
+    /// Type size, which SwiftUI does not apply to fonts on macOS.
+    ///
+    /// At `.large`, and at a size this version does not know, the
+    /// font is the one `font(forTextStyle:design:weight:)` returns.
+
+    @available(macOS 12.0, *)
+    internal func font(
+        forTextStyle textStyle: Font.TextStyle,
+        design: FontDesign?,
+        weight: FontWeight?,
+        dynamicTypeSize: DynamicTypeSize
+    ) -> Font {
+        guard let step = dynamicTypeSize.scalingStep, step != TextSizeScaling.largeStep else {
+            return font(forTextStyle: textStyle, design: design, weight: weight)
+        }
+
+        let platformFont: NSFont = font(
+            forTextStyle: uiTextStyle(textStyle),
+            design: design,
+            weight: weight,
+            dynamicTypeSize: dynamicTypeSize
+        )
+        return Font(platformFont as CTFont)
+    }
+    #endif
+
     private func uiTextStyle(_ textStyle: Font.TextStyle) -> PlatformFont.TextStyle {
         switch textStyle {
         case .largeTitle: return largeTitle()
@@ -164,11 +193,49 @@ private struct ScaledFontModifier: ViewModifier {
     let design: ScaledFont.FontDesign?
     let weight: ScaledFont.FontWeight?
 
+    @ViewBuilder
     func body(content: Content) -> some View {
+        #if os(macOS)
+        if #available(macOS 12.0, *) {
+            content.modifier(SizedScaledFontModifier(
+                scaledFont: scaledFont,
+                textStyle: textStyle,
+                design: design,
+                weight: weight
+            ))
+        } else {
+            content
+                .font(scaledFont.font(forTextStyle: textStyle, design: design, weight: weight))
+        }
+        #else
         content
             .font(scaledFont.font(forTextStyle: textStyle, design: design, weight: weight))
+        #endif
     }
 }
+
+#if os(macOS)
+/// Scales the font for the Dynamic Type size of the environment,
+/// because SwiftUI ignores that size for fonts on macOS.
+
+@available(macOS 12.0, *)
+private struct SizedScaledFontModifier: ViewModifier {
+    @Environment(\.dynamicTypeSize) private var dynamicTypeSize
+    let scaledFont: ScaledFont
+    let textStyle: Font.TextStyle
+    let design: ScaledFont.FontDesign?
+    let weight: ScaledFont.FontWeight?
+
+    func body(content: Content) -> some View {
+        content.font(scaledFont.font(
+            forTextStyle: textStyle,
+            design: design,
+            weight: weight,
+            dynamicTypeSize: dynamicTypeSize
+        ))
+    }
+}
+#endif
 
 @available(iOS 13.0, macOS 11.0, tvOS 13.0, watchOS 6.0, *)
 public extension View {

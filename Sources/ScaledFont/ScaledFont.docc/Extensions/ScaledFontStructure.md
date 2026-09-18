@@ -10,6 +10,7 @@
 
 - ``font(forTextStyle:)``
 - ``font(forTextStyle:design:weight:)``
+- ``font(forTextStyle:design:weight:dynamicTypeSize:)``
 
 ### Choosing Font Variants
 
