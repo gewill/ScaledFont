@@ -336,7 +336,10 @@ public struct ScaledFont {
     /// iOS, and a system font by the ratio of the iOS preferred
     /// font sizes. Sizes are rounded to whole points, as they are
     /// on iOS, except at `.large`, where the font is exactly the
-    /// one you get without a size.
+    /// one you get without a size. A rounded size never passes the
+    /// size at `.large`, so a larger Dynamic Type size never gets a
+    /// smaller font, even for a fractional style dictionary size
+    /// such as 17.8 points.
     ///
     /// - Parameter textStyle: The `NSFont.TextStyle` for the
     ///   font.
@@ -393,12 +396,14 @@ public struct ScaledFont {
             #elseif canImport(AppKit)
             // macOS has no Dynamic Type, so scale the font by the
             // factor `UIFontMetrics` applies to it on iOS and round
-            // to whole points, as `UIFontMetrics` does.
+            // to whole points, as `UIFontMetrics` does, without
+            // passing the size at Large.
             guard let step = step, step != TextSizeScaling.largeStep, let styleKey = styleKey else {
                 return font
             }
 
-            let size = (font.pointSize * TextSizeScaling.customFontScale(for: styleKey, step: step)).rounded()
+            let scale = TextSizeScaling.customFontScale(for: styleKey, step: step)
+            let size = TextSizeScaling.scaledSize(font.pointSize, by: scale, step: step)
             return PlatformFont(descriptor: font.fontDescriptor.withSize(size), size: size) ?? font
             #endif
         }
@@ -450,7 +455,8 @@ public struct ScaledFont {
         // style by the ratio of the iOS preferred font sizes and
         // round to whole points, as the preferred fonts are.
         if let step = step, step != TextSizeScaling.largeStep, let styleKey = StyleKey(textStyle) {
-            size = (size * TextSizeScaling.systemFontScale(for: styleKey, step: step)).rounded()
+            let scale = TextSizeScaling.systemFontScale(for: styleKey, step: step)
+            size = TextSizeScaling.scaledSize(size, by: scale, step: step)
             let descriptor = PlatformFontDescriptor.preferredFontDescriptor(forTextStyle: textStyle, options: [:])
             font = PlatformFont(descriptor: descriptor.withSize(size), size: size) ?? preferredFont
         }

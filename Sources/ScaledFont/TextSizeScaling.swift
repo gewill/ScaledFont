@@ -97,6 +97,27 @@ enum TextSizeScaling {
         return multipliers[step]
     }
 
+    /// The size of a font at the step: its size at Large scaled by
+    /// the factor and rounded to whole points, as on iOS.
+    ///
+    /// At Large a font keeps its size, which can have a fraction,
+    /// such as a style dictionary size of 17.8 points. The rounded
+    /// size of a nearby step could pass it, and a larger text size
+    /// would then get a smaller font, so the size of a smaller step
+    /// is at most the size at Large, and the size of a larger step
+    /// at least that size.
+
+    static func scaledSize(_ size: CGFloat, by scale: CGFloat, step: Int) -> CGFloat {
+        let rounded = (size * scale).rounded()
+        if step < largeStep {
+            return min(rounded, size)
+        }
+        if step > largeStep {
+            return max(rounded, size)
+        }
+        return size
+    }
+
     #if canImport(UIKit) && !os(watchOS)
     /// A trait collection with the content size category of the
     /// step.
