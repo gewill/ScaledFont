@@ -138,22 +138,7 @@ final class TextSizeScalingTests: XCTestCase {
 
 @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
 final class TextSizePreferenceTests: XCTestCase {
-    private var suite: TestDefaults!
-
-    private var defaults: UserDefaults {
-        suite.defaults
-    }
-
-    override func setUp() {
-        super.setUp()
-        suite = TestDefaults()
-    }
-
-    override func tearDown() {
-        suite.remove()
-        suite = nil
-        super.tearDown()
-    }
+    private let defaults = TestDefaults()
 
     @MainActor
     func testStartsAtLargeWithEverySize() {
@@ -261,26 +246,31 @@ final class TextSizePreferenceTests: XCTestCase {
     }
 }
 
-/// A user defaults suite for one test.
+/// User defaults that keep their values in memory.
 ///
-/// Removing a persistent domain leaves an empty property list
-/// behind on macOS, so ``remove()`` deletes that file as well.
+/// A suite from `UserDefaults(suiteName:)` leaves an empty property
+/// list in the Preferences folder once a test writes to it: removing
+/// the persistent domain leaves the file, and cfprefsd writes it back
+/// after the file is deleted. These defaults never create a domain,
+/// so a test leaves nothing behind.
 
-private final class TestDefaults {
-    let suiteName = "ScaledFontTests.\(UUID().uuidString)"
-    let defaults: UserDefaults
+private final class TestDefaults: UserDefaults {
+    private var values: [String: Any] = [:]
 
-    init() {
-        defaults = UserDefaults(suiteName: suiteName)!
+    override func object(forKey defaultName: String) -> Any? {
+        values[defaultName]
     }
 
-    func remove() {
-        defaults.removePersistentDomain(forName: suiteName)
-        #if os(macOS)
-        let file = FileManager.default.homeDirectoryForCurrentUser
-            .appendingPathComponent("Library/Preferences/\(suiteName).plist")
-        try? FileManager.default.removeItem(at: file)
-        #endif
+    override func string(forKey defaultName: String) -> String? {
+        object(forKey: defaultName) as? String
+    }
+
+    override func set(_ value: Any?, forKey defaultName: String) {
+        values[defaultName] = value
+    }
+
+    override func removeObject(forKey defaultName: String) {
+        values[defaultName] = nil
     }
 }
 
@@ -462,10 +452,7 @@ final class MacTextSizeSwiftUITests: XCTestCase {
 
     @MainActor
     func testTheSameHostingViewUpdatesWhenThePreferenceChanges() {
-        let suite = TestDefaults()
-        defer { suite.remove() }
-
-        let preference = TextSizePreference(userDefaults: suite.defaults)
+        let preference = TextSizePreference(userDefaults: TestDefaults())
         let host = NSHostingView(rootView: PreferenceText(preference: preference, scaledFont: futura, sample: sample))
         let before = host.fittingSize
 
