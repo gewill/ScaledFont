@@ -23,6 +23,7 @@ This fork continues from upstream 1.0.5. It does not include the changes in upst
 ### Changed
 
 - The Swift Package Index badges in the README show this fork instead of the upstream project.
+- The Swift Package Index builds the documentation on macOS instead of iOS, so it includes the AppKit API.
 
 ## [1.1.1] - 2026-09-17
 

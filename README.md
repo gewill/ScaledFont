@@ -17,7 +17,7 @@ This is a fork of [ScaledFont by Keith Harrison](https://github.com/kharrison/Sc
 This fork continues from version 1.0.5 of the upstream project and adds:
 
 - **macOS support.** `font(forTextStyle:)` takes an `NSFont.TextStyle` and returns an `NSFont`, and the SwiftUI modifiers work as they do on the other platforms. See [macOS Support](#macos-support).
-- **An in-app text size for Mac apps.** macOS has no Dynamic Type, so `TextSizePreference` stores the text size people choose in your app, and ScaledFont scales its fonts to that size with the steps of Dynamic Type on iOS. This is on the `main` branch and not in a release yet.
+- **An in-app text size for Mac apps.** macOS has no Dynamic Type, so `TextSizePreference` stores the text size people choose in your app, and ScaledFont scales its fonts to that size with the steps of Dynamic Type on iOS.
 - **System fonts in the style dictionary.** An entry without `fontName` and `fontSize` describes a system font, with a `design` key (`default`, `serif` or `monospaced`) and a `weight` key (`regular` or `bold`). The `weight` key works for custom fonts too.
 - **Variants where you use a font.** `font(forTextStyle:design:weight:)` and `scaledFont(_:design:weight:)` override the variants of the style dictionary.
 - **Documentation** for UIKit, AppKit and SwiftUI on every platform, with articles on the style dictionary, the font variants and the in-app text size.
@@ -55,7 +55,7 @@ targets: [
 ]
 ```
 
-In Xcode, choose File > Add Package Dependencies and enter `https://github.com/gewill/ScaledFont`. To use the in-app text size before the next release, depend on the `main` branch.
+In Xcode, choose File > Add Package Dependencies and enter `https://github.com/gewill/ScaledFont`.
 
 ## Why ScaledFont
 
@@ -288,7 +288,7 @@ struct ContentView: View {
 
 ## In-App Text Size on macOS
 
-macOS does not share the text size people choose in System Settings with other apps, and SwiftUI ignores the Dynamic Type size for fonts on the Mac. To let people make the text in your app larger, offer your own text size setting. ScaledFont scales the fonts it manages to that size, with the same steps and the same text style hierarchy as Dynamic Type on iOS. You need macOS 12 or later. The in-app text size is on the `main` branch and not in a release yet.
+macOS does not share the text size people choose in System Settings with other apps, and SwiftUI ignores the Dynamic Type size for fonts on the Mac. To let people make the text in your app larger, offer your own text size setting. ScaledFont scales the fonts it manages to that size, with the same steps and the same text style hierarchy as Dynamic Type on iOS. You need macOS 12 or later. The in-app text size is not in a release yet; to use it, depend on the `main` branch.
 
 `TextSizePreference` stores the size in the user defaults of your app, keeps it within a range, which includes every accessibility size by default, and tells your app when it changes.
 
