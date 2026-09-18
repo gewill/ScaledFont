@@ -138,18 +138,20 @@ final class TextSizeScalingTests: XCTestCase {
 
 @available(iOS 15.0, macOS 12.0, tvOS 15.0, watchOS 8.0, *)
 final class TextSizePreferenceTests: XCTestCase {
-    private var suiteName = ""
-    private var defaults: UserDefaults!
+    private var suite: TestDefaults!
+
+    private var defaults: UserDefaults {
+        suite.defaults
+    }
 
     override func setUp() {
         super.setUp()
-        suiteName = "ScaledFontTests.TextSizePreference.\(UUID().uuidString)"
-        defaults = UserDefaults(suiteName: suiteName)
+        suite = TestDefaults()
     }
 
     override func tearDown() {
-        defaults.removePersistentDomain(forName: suiteName)
-        defaults = nil
+        suite.remove()
+        suite = nil
         super.tearDown()
     }
 
@@ -256,6 +258,29 @@ final class TextSizePreferenceTests: XCTestCase {
         preference.increase()
 
         wait(for: [notified], timeout: 1)
+    }
+}
+
+/// A user defaults suite for one test.
+///
+/// Removing a persistent domain leaves an empty property list
+/// behind on macOS, so ``remove()`` deletes that file as well.
+
+private final class TestDefaults {
+    let suiteName = "ScaledFontTests.\(UUID().uuidString)"
+    let defaults: UserDefaults
+
+    init() {
+        defaults = UserDefaults(suiteName: suiteName)!
+    }
+
+    func remove() {
+        defaults.removePersistentDomain(forName: suiteName)
+        #if os(macOS)
+        let file = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent("Library/Preferences/\(suiteName).plist")
+        try? FileManager.default.removeItem(at: file)
+        #endif
     }
 }
 
@@ -436,12 +461,11 @@ final class MacTextSizeSwiftUITests: XCTestCase {
     }
 
     @MainActor
-    func testTheSameHostingViewUpdatesWhenThePreferenceChanges() throws {
-        let suiteName = "ScaledFontTests.HostingView.\(UUID().uuidString)"
-        let defaults = try XCTUnwrap(UserDefaults(suiteName: suiteName))
-        defer { defaults.removePersistentDomain(forName: suiteName) }
+    func testTheSameHostingViewUpdatesWhenThePreferenceChanges() {
+        let suite = TestDefaults()
+        defer { suite.remove() }
 
-        let preference = TextSizePreference(userDefaults: defaults)
+        let preference = TextSizePreference(userDefaults: suite.defaults)
         let host = NSHostingView(rootView: PreferenceText(preference: preference, scaledFont: futura, sample: sample))
         let before = host.fittingSize
 
