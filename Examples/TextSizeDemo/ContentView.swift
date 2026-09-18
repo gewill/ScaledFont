@@ -3,63 +3,57 @@ import SwiftUI
 
 /// The text styles of two style dictionaries with SwiftUI, and of
 /// one with AppKit, at the text size of the app.
+///
+/// The toolbar changes the size, and the window subtitle shows it.
 
 struct ContentView: View {
+    @EnvironmentObject private var textSize: TextSizePreference
+
     private let futura = ScaledFont(fontName: "Futura", bundle: .module)
     private let systemFonts = ScaledFont(fontName: "SystemFonts", bundle: .module)
 
     var body: some View {
-        VStack(spacing: 0) {
-            SizeBar()
-            Divider()
-            HStack(alignment: .top, spacing: 0) {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 24) {
-                        StyleSamples(title: "SwiftUI · Futura.plist")
-                            .scaledFont(futura)
-                        StyleSamples(title: "SwiftUI · SystemFonts.plist")
-                            .scaledFont(systemFonts)
-                    }
-                    .padding()
-                    .frame(maxWidth: .infinity, alignment: .leading)
+        HStack(alignment: .top, spacing: 0) {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    StyleSamples(title: "SwiftUI · Futura.plist")
+                        .scaledFont(futura)
+                    StyleSamples(title: "SwiftUI · SystemFonts.plist")
+                        .scaledFont(systemFonts)
                 }
-                Divider()
-                AppKitSamples(scaledFont: futura)
-                    .frame(width: 340)
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .leading)
             }
+            Divider()
+            AppKitSamples(scaledFont: futura)
+                .frame(width: 340)
         }
         .frame(minWidth: 800, minHeight: 560)
-    }
-}
-
-/// The current text size and buttons that change it.
-
-struct SizeBar: View {
-    @EnvironmentObject private var textSize: TextSizePreference
-
-    var body: some View {
-        HStack {
-            Text("Text size: \(textSize.dynamicTypeSize.displayName)")
-            Spacer()
-            Button {
-                textSize.decrease()
-            } label: {
-                Image(systemName: "textformat.size.smaller")
+        .navigationSubtitle("Text size: \(textSize.dynamicTypeSize.displayName)")
+        .toolbar {
+            ToolbarItemGroup {
+                Button {
+                    textSize.decrease()
+                } label: {
+                    Label("Make Text Smaller", systemImage: "textformat.size.smaller")
+                }
+                .disabled(!textSize.canDecrease)
+                .help("Make Text Smaller")
+                Button {
+                    textSize.reset()
+                } label: {
+                    Label("Make Text Normal Size", systemImage: "textformat.size")
+                }
+                .help("Make Text Normal Size")
+                Button {
+                    textSize.increase()
+                } label: {
+                    Label("Make Text Bigger", systemImage: "textformat.size.larger")
+                }
+                .disabled(!textSize.canIncrease)
+                .help("Make Text Bigger")
             }
-            .disabled(!textSize.canDecrease)
-            .help("Make Text Smaller")
-            Button("Normal Size") {
-                textSize.reset()
-            }
-            Button {
-                textSize.increase()
-            } label: {
-                Image(systemName: "textformat.size.larger")
-            }
-            .disabled(!textSize.canIncrease)
-            .help("Make Text Bigger")
         }
-        .padding(8)
     }
 }
 

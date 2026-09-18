@@ -77,7 +77,7 @@ Set the fonts of attributed text, such as the contents of an `NSTextView`, again
 
 ### Try the Demo App
 
-The `Examples` folder of the package contains `TextSizeDemo`, a macOS app that changes the text size from the View menu, from buttons in the window and from a slider in Settings, for text in SwiftUI and in AppKit. Run `swift run TextSizeDemo` in that folder.
+The `Examples` folder of the package contains `TextSizeDemo`, a macOS app that changes the text size from the View menu, from the toolbar and from a slider in Settings, for text in SwiftUI and in AppKit. Run `swift run TextSizeDemo` in that folder.
 
 ### How Fonts Scale
 

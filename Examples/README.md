@@ -15,7 +15,7 @@ Add a style dictionary to your app target, along with the font files of any cust
 
 ## TextSizeDemo
 
-A macOS app that shows the in-app text size. Change the size with the View menu (⌘+, ⌘- and ⌘0), the buttons at the top of the window, or the slider in Settings. The window shows `Futura.plist` and `SystemFonts.plist` with SwiftUI, and `Futura.plist` with AppKit.
+A macOS app that shows the in-app text size. Change the size with the View menu (⌘+, ⌘- and ⌘0), the toolbar, or the slider in Settings; the window subtitle shows the current size. The window shows `Futura.plist` and `SystemFonts.plist` with SwiftUI, and `Futura.plist` with AppKit.
 
 The app needs macOS 12 or later. Run it from this folder:
 
