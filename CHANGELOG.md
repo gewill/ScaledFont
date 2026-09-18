@@ -18,6 +18,11 @@ This fork continues from upstream 1.0.5. It does not include the changes in upst
 - `TextSizeDemo` in the `Examples` folder, a macOS app that shows the in-app text size with SwiftUI and AppKit. Run it with `swift run TextSizeDemo` in that folder.
 - `Examples/SystemFonts.plist`, a style dictionary that uses the system font with the serif and monospaced designs and a bold weight.
 - README sections on using ScaledFont with AppKit and on the in-app text size.
+- README sections on what this fork adds, on macOS support and on installing the fork, and a link to the documentation on the Swift Package Index.
+
+### Changed
+
+- The Swift Package Index badges in the README show this fork instead of the upstream project.
 
 ## [1.1.1] - 2026-09-17
 
