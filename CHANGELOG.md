@@ -8,6 +8,10 @@ This fork continues from upstream 1.0.5. It does not include the changes in upst
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-09-19
+
+Adds an in-app text size for macOS, where there is no Dynamic Type. Apps that do not choose a text size get the same fonts as with 1.1.1.
+
 ### Added
 
 - An in-app text size for macOS, where there is no Dynamic Type. See [#6](https://github.com/gewill/ScaledFont/issues/6).
@@ -78,7 +82,8 @@ Apps that used the `codex/font-variant-overrides` branch before this release sho
 
 Released by the upstream project. See the [upstream releases](https://github.com/kharrison/ScaledFont/releases).
 
-[Unreleased]: https://github.com/gewill/ScaledFont/compare/1.1.1...HEAD
+[Unreleased]: https://github.com/gewill/ScaledFont/compare/1.2.0...HEAD
+[1.2.0]: https://github.com/gewill/ScaledFont/compare/1.1.1...1.2.0
 [1.1.1]: https://github.com/gewill/ScaledFont/compare/1.1.0...1.1.1
 [1.1.0]: https://github.com/gewill/ScaledFont/compare/2ab843f...1.1.0
 [1.0.5]: https://github.com/kharrison/ScaledFont/releases/tag/1.0.5

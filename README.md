@@ -46,7 +46,7 @@ Add the package with the Swift Package Manager, from the URL of this fork:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/gewill/ScaledFont.git", from: "1.1.1")
+    .package(url: "https://github.com/gewill/ScaledFont.git", from: "1.2.0")
 ],
 targets: [
     .target(name: "MyApp", dependencies: [
@@ -288,7 +288,7 @@ struct ContentView: View {
 
 ## In-App Text Size on macOS
 
-macOS does not share the text size people choose in System Settings with other apps, and SwiftUI ignores the Dynamic Type size for fonts on the Mac. To let people make the text in your app larger, offer your own text size setting. ScaledFont scales the fonts it manages to that size, with the same steps and the same text style hierarchy as Dynamic Type on iOS. You need macOS 12 or later. The in-app text size is not in a release yet; to use it, depend on the `main` branch.
+macOS does not share the text size people choose in System Settings with other apps, and SwiftUI ignores the Dynamic Type size for fonts on the Mac. To let people make the text in your app larger, offer your own text size setting. ScaledFont scales the fonts it manages to that size, with the same steps and the same text style hierarchy as Dynamic Type on iOS. You need macOS 12 or later.
 
 `TextSizePreference` stores the size in the user defaults of your app, keeps it within a range, which includes every accessibility size by default, and tells your app when it changes.
 
